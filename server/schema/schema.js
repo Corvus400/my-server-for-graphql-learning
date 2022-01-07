@@ -10,6 +10,14 @@ var usersData = [
     {id: '150', name: 'Georgina', age: 36, profession:'Teacher'}
 ]
 
+var hobbiesData = [
+    {id: '1', title: 'Programming', description:''},
+    {id: '2', title: 'Rowing', description:''},
+    {id: '3', title: 'Swimming', description:''},
+    {id: '4', title: 'Fencing', description:''},
+    {id: '5', title: 'Hiking', description:''}
+]
+
 const {
     GraphQLObjectType,
     GraphQLID,
@@ -23,10 +31,20 @@ const UserType = new graphiql.GraphQLObjectType({
     name: 'User',
     description: 'Documentation for user...',
     fields: () => ({
-        id: {type: graphiql.GraphQLString},
+        id: {type: graphiql.GraphQLID},
         name: {type: graphiql.GraphQLString},
         age: {type: graphiql.GraphQLInt},
         profession: {type: graphiql.GraphQLString}
+    })
+})
+
+const HobbyType = new GraphQLObjectType({
+    name: 'Hobby',
+    description: 'Hobby description',
+    fields: () => ({
+        id: {type: GraphQLID},
+        title: {type: GraphQLString},
+        description: {type: GraphQLString}
     })
 })
 
@@ -44,6 +62,16 @@ const RootQuery = new GraphQLObjectType({
 
                 // we resolve with data
                 // get and return data from a datasource
+            }
+        },
+        hobby: {
+            type: HobbyType,
+            args: {id: {type: GraphQLID}},
+
+            resolve(parent, args) {
+                return _.find(hobbiesData, {id: args.id})
+
+                // return data for our hobby
             }
         }
     }
