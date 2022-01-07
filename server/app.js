@@ -1,8 +1,6 @@
 const express = require('express')
 const graphqlHTTP = require('express-graphql').graphqlHTTP 
-
 const schema = require('./schema/schema')
-
 const app = express()
 
 // Use the endpoint URL of your own MongoDB.
