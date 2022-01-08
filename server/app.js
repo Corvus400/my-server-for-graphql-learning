@@ -1,6 +1,9 @@
 const express = require('express')
 const graphqlHTTP = require('express-graphql').graphqlHTTP 
 const schema = require('./schema/schema')
+
+const port = process.env.PORT || 4000
+
 const app = express()
 
 // Use the endpoint URL of your own MongoDB.
@@ -16,6 +19,6 @@ app.use('/graphql', graphqlHTTP({
     schema: schema
 }))
 
-app.listen(4000, () => {
+app.listen(port, () => {
     console.log('Listening for request on my awesome port 4000');
 })

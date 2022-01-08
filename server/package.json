@@ -14,5 +14,8 @@
     "graphql": "^16.2.0",
     "lodash": "^4.17.21",
     "mongoose": "^6.1.5"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
 }
