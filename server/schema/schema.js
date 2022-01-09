@@ -26,13 +26,13 @@ const UserType = new graphiql.GraphQLObjectType({
         posts: {
             type: new GraphQLList(PostType),
             resolve(parent, args) {
-                return Post.find(postsData, {userId: parent.id})
+                return Post.find({userId: parent.id})
             }
         },
         hobbies: {
             type: new GraphQLList(HobbyType),
             resolve(parent, args) {
-                return Hobby.find(hobbiesData, {userId: parent.id})
+                return Hobby.find({userId: parent.id})
             }
         }
     })
