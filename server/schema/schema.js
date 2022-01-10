@@ -1,8 +1,9 @@
 const graphiql = require('graphql')
 var _ = require('lodash')
-const User = require('../model/User');
-const Hobby = require('../model/Hobby');
-const Post = require('../model/Post');
+const User = require('../model/User')
+const Hobby = require('../model/Hobby')
+const Post = require('../model/Post')
+const mongoose = require('mongoose')
 
 const {
     GraphQLObjectType,
@@ -116,6 +117,34 @@ const RootQuery = new GraphQLObjectType({
     }
 })
 
+const CreateHobbyInputType = new graphiql.GraphQLInputObjectType({
+    name: "CreateHobbyInputType",
+    description: "",
+    fields: () => ({
+        title: {type: new GraphQLNonNull(GraphQLString)},
+        description: {type: new GraphQLNonNull(GraphQLString)},
+        userId: {type:  new GraphQLNonNull(GraphQLID)}
+    })
+})
+
+const UpdateHobbyInputType = new graphiql.GraphQLInputObjectType({
+    name: "UpdateHobbyInputType",
+    description: "",
+    fields: () => ({
+        id: {type: new GraphQLNonNull(GraphQLID)},
+        title: {type: new GraphQLNonNull(GraphQLString)},
+        description: {type: new GraphQLNonNull(GraphQLString)},
+    })
+})
+
+const RemoveHobbyInputType = new graphiql.GraphQLInputObjectType({
+    name: "RemoveHobbyInputType",
+    description: "",
+    fields: () => ({
+        id: {type: new GraphQLNonNull(GraphQLID)},
+    })
+})
+
 // Mutations
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -227,38 +256,74 @@ const Mutation = new GraphQLObjectType({
         createHobby: {
             type: HobbyType,
             args: {
-                title: {type: new GraphQLNonNull(GraphQLString)},
-                description: {type: new GraphQLNonNull(GraphQLString)},
-                userId: {type:  new GraphQLNonNull(GraphQLID)}
+                hobby: {type: new GraphQLNonNull(CreateHobbyInputType)}
             },
-
             resolve(parent, args) {
-                let hobby = new Hobby({
-                    title: args.title,
-                    description: args.description,
-                    userId: args.userId
+                const hobbyModel = mongoose.model('Hobby')
+                const input = args.hobby
+                return hobbyModel.create({
+                    title: input.title,
+                    description: input.description,
+                    userId: input.userId
                 })
-                return hobby.save()
+            }
+        },
+        createHobbies: {
+            type: new GraphQLList(HobbyType),
+            args: {
+                hobbies: {type: new GraphQLNonNull(new GraphQLList(CreateHobbyInputType))}
+            },
+            resolve(parent, args) {
+                const hobbyModel = mongoose.model('Hobby')
+                const inputs = args.hobbies
+                let hobbies = inputs.map( input =>
+                    new Hobby({
+                        title: input.title,
+                        description: input.description,
+                        userId: input.userId
+                    })
+                )
+
+                return hobbyModel.insertMany(hobbies)
             }
         },
         updateHobby: {
             type: HobbyType,
             args: {
-                id: {type: new GraphQLNonNull(GraphQLID)},
-                title: {type: new GraphQLNonNull(GraphQLString)},
-                description: {type: new GraphQLNonNull(GraphQLString)},
+                hobby: {type: new GraphQLNonNull(UpdateHobbyInputType)}
             },
-            resolve(parent, args) {
-                return updatedHobby = Hobby.findByIdAndUpdate(
-                    args.id,
+            async resolve(parent, args) {
+                return await Hobby.findByIdAndUpdate(
+                    args.hobby.id,
                     {
                         $set: {
-                            title: args.title,
-                            description: args.title
+                            title: args.hobby.title,
+                            description: args.hobby.title
                         }
                     },
                     {new: true}
                 )
+            }
+        },
+        updateHobbies: {
+            type: new GraphQLList(HobbyType),
+            args: {
+                hobbies: {type: new GraphQLNonNull(new GraphQLList(UpdateHobbyInputType))}
+            },
+            async resolve(parent, args) {
+                for (let i = 0; i < args.hobbies.length; i++) {
+                    const hobby = args.hobbies[i]
+                    await Hobby.findByIdAndUpdate(
+                        hobby.id,
+                        {
+                            $set: {
+                                title: hobby.title,
+                                description: hobby.title
+                            }
+                        },
+                        {new: true}
+                    )
+                }
             }
         },
         removeHobby: {
@@ -271,11 +336,25 @@ const Mutation = new GraphQLObjectType({
                     args.id
                 ).exec()
 
-                if(!removedHobby) {
-                    throw new("Error")
+                if (!removedHobby) {
+                    throw "The Hobby with the specified ID does not exist."
                 }
 
                 return removedHobby
+            }
+        },
+        removeHobbies: {
+            type: new GraphQLList(HobbyType),
+            args: {
+                ids: {type: new GraphQLNonNull(new GraphQLList(RemoveHobbyInputType))}
+            },
+            async resolve(parent, args) {
+                for (let i = 0; i < args.ids.length; i++) {
+                    const element = args.ids[i]
+                    await Hobby.findByIdAndRemove(
+                        element.id
+                    ).exec()
+                }
             }
         }
     }
