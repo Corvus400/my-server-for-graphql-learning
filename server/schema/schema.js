@@ -76,7 +76,7 @@ const RootQuery = new GraphQLObjectType({
     fields: {
         user: {
             type: UserType,
-            args: {id: {type: GraphQLString}},
+            args: {id: {type: GraphQLID}},
             resolve(parent, args) {
                 return User.findById(args.id)
             }
@@ -161,7 +161,7 @@ const Mutation = new GraphQLObjectType({
         removeUser: {
             type: UserType,
             args: {
-                id: {type: new GraphQLNonNull(GraphQLString)}
+                id: {type: new GraphQLNonNull(GraphQLID)}
             },
             resolve(parent, args) {
                 let removedUser = User.findByIdAndRemove(
@@ -192,7 +192,7 @@ const Mutation = new GraphQLObjectType({
         updatePost: {
             type: PostType,
             args: {
-                id: {type: new GraphQLNonNull(GraphQLString)},
+                id: {type: new GraphQLNonNull(GraphQLID)},
                 comment: {type: new GraphQLNonNull(GraphQLString)},
             },
             resolve(parent, args) {
@@ -210,7 +210,7 @@ const Mutation = new GraphQLObjectType({
         removePost: {
             type: PostType,
             args: {
-                id: {type: new GraphQLNonNull(GraphQLString)},
+                id: {type: new GraphQLNonNull(GraphQLID)},
             },
             resolve(parent, args) {
                 let removedPost = Post.findByIdAndRemove(
@@ -229,7 +229,7 @@ const Mutation = new GraphQLObjectType({
             args: {
                 title: {type: new GraphQLNonNull(GraphQLString)},
                 description: {type: new GraphQLNonNull(GraphQLString)},
-                userId: {type:  new GraphQLNonNull(GraphQLString)}
+                userId: {type:  new GraphQLNonNull(GraphQLID)}
             },
 
             resolve(parent, args) {
@@ -244,7 +244,7 @@ const Mutation = new GraphQLObjectType({
         updateHobby: {
             type: HobbyType,
             args: {
-                id: {type: new GraphQLNonNull(GraphQLString)},
+                id: {type: new GraphQLNonNull(GraphQLID)},
                 title: {type: new GraphQLNonNull(GraphQLString)},
                 description: {type: new GraphQLNonNull(GraphQLString)},
             },
@@ -264,7 +264,7 @@ const Mutation = new GraphQLObjectType({
         removeHobby: {
             type: HobbyType,
             args: {
-                id: {type: new GraphQLNonNull(GraphQLString)}
+                id: {type: new GraphQLNonNull(GraphQLID)}
             },
             resolve(parent, args) {
                 let removedHobby = Hobby.findByIdAndRemove(
